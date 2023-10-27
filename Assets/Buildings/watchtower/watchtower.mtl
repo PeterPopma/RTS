@@ -1,0 +1,19 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 07.01.2021 13:24:03
+
+newmtl watchtower
+	Ns 43.2193
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.2000 0.2000 0.2000
+	Kd 0.8000 0.8000 0.8000
+	Ks 0.2000 0.2000 0.2000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\Users\user\Desktop\watchtower\textures\watchtower_albedo.tga
+	map_Kd C:\Users\user\Desktop\watchtower\textures\watchtower_albedo.tga
+	map_Ks C:\Users\user\Desktop\watchtower\textures\watchtower_metalness.tga
+	map_bump C:\Users\user\Desktop\watchtower\textures\watchtower_normal.tga
+	bump C:\Users\user\Desktop\watchtower\textures\watchtower_normal.tga

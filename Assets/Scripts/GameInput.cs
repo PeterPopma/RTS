@@ -13,7 +13,6 @@ public class GameInput : MonoBehaviour
     bool zoomOut;
     new Camera camera;
     private float timeMovingStarted;
-    float cameraHeight = 100;
 
     // Start is called before the first frame update
     void Start()
@@ -47,18 +46,18 @@ public class GameInput : MonoBehaviour
         }
         if (zoomIn)
         {
-            if (cameraHeight > 70)
+            if (Game.Instance.CameraHeight > 50)
             {
-                cameraHeight -= Time.deltaTime * 100f;
-                camera.transform.position = new Vector3(camera.transform.position.x, cameraHeight, camera.transform.position.z);
+                Game.Instance.CameraHeight -= Time.deltaTime * 100f;
+                camera.transform.position = new Vector3(camera.transform.position.x, Game.Instance.CameraHeight, camera.transform.position.z);
             }
         }
         if (zoomOut)
         {
-            if (cameraHeight < 300)
+            if (Game.Instance.CameraHeight < 300)
             {
-                cameraHeight += Time.deltaTime * 100f;
-                camera.transform.position = new Vector3(camera.transform.position.x, cameraHeight, camera.transform.position.z);
+                Game.Instance.CameraHeight += Time.deltaTime * 100f;
+                camera.transform.position = new Vector3(camera.transform.position.x, Game.Instance.CameraHeight, camera.transform.position.z);
             }
         }
     }
