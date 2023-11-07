@@ -58,6 +58,42 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "IncreaseAngleX",
+                    "type": "Value",
+                    "id": "0177b583-dbfe-4f6f-b43d-e27d7b24605e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "DecreaseAngleX",
+                    "type": "Value",
+                    "id": "f8350d1c-4caa-4767-b7cc-ad272501147d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "IncreaseAngleY",
+                    "type": "Value",
+                    "id": "08e63aec-0274-438c-8546-dd5f7e18e49e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "DecreaseAngleY",
+                    "type": "Value",
+                    "id": "182c9d13-04a7-4c04-8591-112ce05c8575",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -107,6 +143,39 @@
                 },
                 {
                     "name": "",
+                    "id": "ca25e750-8cc7-438a-98a2-d9b670abfaa5",
+                    "path": "<Keyboard>/minus",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ZoomOut",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b5cb0a72-222e-4c91-9119-1122dfc19627",
+                    "path": "<Keyboard>/pageUp",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "IncreaseAngleX",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f6059873-fc8c-4828-9eae-b5ec11a57e32",
+                    "path": "<Keyboard>/pageDown",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DecreaseAngleX",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "6d19fa64-2e75-4ca8-b84d-194e1fdc5cb4",
                     "path": "<Keyboard>/equals",
                     "interactions": "",
@@ -118,12 +187,23 @@
                 },
                 {
                     "name": "",
-                    "id": "ca25e750-8cc7-438a-98a2-d9b670abfaa5",
-                    "path": "<Keyboard>/minus",
+                    "id": "7747631a-82f8-47f1-9334-c5fef35c6277",
+                    "path": "<Keyboard>/insert",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ZoomOut",
+                    "action": "IncreaseAngleY",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "35a70e98-c156-4f56-b348-19c78f54ff40",
+                    "path": "<Keyboard>/home",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DecreaseAngleY",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
