@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum ArmyType_
+{
+    Archer,
+    Swordsman,
+    Pikeman
+}
+
 public class Army : MonoBehaviour
 {
     [SerializeField] int playerNumber;
@@ -11,6 +18,8 @@ public class Army : MonoBehaviour
     [SerializeField] float range;
     [SerializeField] float speed;
     [SerializeField] private bool isArchers;
+    [SerializeField] GameObject pfArrow;
+    [SerializeField] ArmyType_ armyType;
     Vector2 destination;
     List<Soldier> soldiers = new List<Soldier>();
     Soldier armyLeader;
@@ -21,6 +30,7 @@ public class Army : MonoBehaviour
     bool wantsToAttack = true;
     float timeLeftShowHealth;
     Vector3 attackDirection;
+    float attackDistance;
 
     public Vector2 Destination { get => destination; set => destination = value; }
     public Soldier ArmyLeader { get => armyLeader; set => armyLeader = value; }
@@ -37,6 +47,11 @@ public class Army : MonoBehaviour
     public int ActiveSoldiers { get => activeSoldiers; set => activeSoldiers = value; }
     public GameObject Healthbar { get => healthbar; set => healthbar = value; }
     public Vector3 AttackDirection { get => attackDirection; set => attackDirection = value; }
+    public GameObject PfArrow { get => pfArrow; set => pfArrow = value; }
+    public float AttackDistance { get => attackDistance; set => attackDistance = value; }
+    public ArmyType_ ArmyType { get => armyType; set => armyType = value; }
+    public float Health { get => health; set => health = value; }
+
 
     private void Awake()
     {
@@ -47,20 +62,40 @@ public class Army : MonoBehaviour
         health += amount;
         while (activeSoldiers-1 > health/10)
         {
-            activeSoldiers--;
             LetRandomSoldierDie();
         }
+        while (activeSoldiers - 1 < (health-10) / 10)
+        {
+            BringSoldierToLife();
+        }
         timeLeftShowHealth = 2;
-        healthbar.GetComponent<Slider>().value = health;
+        healthbar.GetComponent<Slider>().value = 100 - health;
     }
 
     private void LetRandomSoldierDie()
     {
-        foreach(Soldier soldier in soldiers)
+        activeSoldiers--;
+        foreach (Soldier soldier in soldiers)
         {
             if (soldier.IsAlive && (!soldier.IsLeader || activeSoldiers==0))
             {
                 soldier.Die();
+                break;
+            }
+        }
+    }
+
+    private void BringSoldierToLife()
+    {
+        activeSoldiers++;
+        foreach (Soldier soldier in soldiers)
+        {
+            if (!soldier.IsAlive)
+            {
+                soldier.IsAlive = true;
+                soldier.gameObject.SetActive(true);
+                // the soldier is still at the location where he died, so must be moved back
+                soldier.transform.position = armyLeader.transform.position - armyLeader.transform.localPosition + soldier.transform.localPosition;
                 break;
             }
         }
@@ -92,6 +127,10 @@ public class Army : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (Game.Instance.GameState != GameState_.Playing)
+        {
+            return;
+        }
         DealDamageToUnits();
     }
 
@@ -103,6 +142,7 @@ public class Army : MonoBehaviour
             Collider[] colliders = Physics.OverlapSphere(armyLeader.transform.position, range);
             //            DebugExtension.DebugWireSphere(armyLeader.transform.position, Color.white, range);
             Soldier soldierBeingAttacked = null;
+            Base baseBeingAttacked = null;
 
             foreach (var collider in colliders)
             {
@@ -111,18 +151,33 @@ public class Army : MonoBehaviour
                 {
                     if (soldierBeingAttacked.Army != null && soldierBeingAttacked.Army.PlayerNumber != playerNumber)
                     {
+                        float damage = Time.deltaTime * attackStrength / soldierBeingAttacked.Army.defenceStrength;
+                        attackDirection = soldierBeingAttacked.transform.position - armyLeader.transform.position;
+                        attackDirection.y = 0;
+                        attackDistance = attackDirection.magnitude;
+                        attackDirection = attackDirection.normalized;
+                        soldierBeingAttacked.Army.ChangeHealth(-damage);
+                        attackMode = true;
+                        break;
+                    }
+                }
+                baseBeingAttacked = collider.GetComponent<Base>();
+                if (baseBeingAttacked != null)
+                {
+                    if (baseBeingAttacked.PlayerNumber != playerNumber)
+                    {
+//                        baseBeingAttacked.Damage(Time.deltaTime * attackStrength * 0.1f);
+                        baseBeingAttacked.Damage(Time.deltaTime * attackStrength * 0.5f);
+                        attackDirection = baseBeingAttacked.transform.position - armyLeader.transform.position;
+                        attackDirection.y = 0;
+                        attackDistance = attackDirection.magnitude;
+                        attackDirection = attackDirection.normalized;
                         attackMode = true;
                         break;
                     }
                 }
             }
             UpdateAttackMode(attackMode);
-            if (attackMode)
-            {
-                attackDirection = (soldierBeingAttacked.transform.position - armyLeader.transform.position).normalized;
-                float damage = Time.deltaTime * attackStrength / soldierBeingAttacked.Army.defenceStrength;
-                soldierBeingAttacked.Army.ChangeHealth(-damage);
-            }
         }
     }
 
@@ -140,6 +195,10 @@ public class Army : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Game.Instance.GameState != GameState_.Playing)
+        {
+            return;
+        }
         if (isSelected || timeLeftShowHealth>0)     // draw health bar
         {
             if (timeLeftShowHealth >0)
@@ -177,6 +236,12 @@ public class Army : MonoBehaviour
 
     public void ChangeSelection(bool selected)
     {
+        if (isSelected == selected)
+        {
+            // already (un)selected
+            return;
+        }
+
         isSelected = selected;
 
         if (selected)

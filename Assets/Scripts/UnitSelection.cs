@@ -1,16 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UnitSelection : MonoBehaviour
 {
-    Texture2D selectTexture;
+    [SerializeField] GameObject arrow;
+    [SerializeField] GameObject panelUnitInfo;
 
+    Texture2D selectTexture;
     Vector3 boxBegin;
     Vector3 boxEnd;
     float timeLeftArrow;
     Vector3 arrowPosition;
-    [SerializeField] GameObject arrow;
     new Camera camera;
 
     bool drawing;
@@ -22,6 +25,7 @@ public class UnitSelection : MonoBehaviour
         selectTexture.Apply();
         arrow.SetActive(false); 
         camera = GetComponent<Camera>();
+        panelUnitInfo.SetActive(false);
     }
 
     void Update()
@@ -104,21 +108,61 @@ public class UnitSelection : MonoBehaviour
     {
         Vector3 position = camera.ViewportToWorldPoint(new Vector3(boxBegin.x / Screen.width, boxBegin.y / Screen.height, Game.Instance.CameraHeight));
         Collider[] colliders = Physics.OverlapSphere(position, 30);
-        bool unitSelected = false;
+        Army unitSelected = null;
         foreach (var collider in colliders)
         {
             Soldier soldier = collider.GetComponent<Soldier>();
             if (soldier != null && soldier.Army.PlayerNumber == 0)
             {
-                unitSelected = true;
-                soldier.Army.ChangeSelection(true);
+                unitSelected = soldier.Army;
+                unitSelected.ChangeSelection(true);
                 break;
             }
         }
-        if (!unitSelected)
+        if (unitSelected==null)
         {
             Game.Instance.RemoveSelection();
         }
+        UpdateUnitInfo();
+    }
+
+    private void UpdateUnitInfo()
+    {
+        if (Game.Instance.SelectedArmies.Count != 1)
+        {
+            panelUnitInfo.SetActive(false);
+            return;
+        }
+
+        switch (Game.Instance.SelectedArmies[0].ArmyType)
+        {
+            case ArmyType_.Swordsman:
+                panelUnitInfo.transform.Find("ImageUnitType").GetComponent<Image>().sprite = Resources.Load<Sprite>("swordsman");
+                break;
+            case ArmyType_.Pikeman:
+                panelUnitInfo.transform.Find("ImageUnitType").GetComponent<Image>().sprite = Resources.Load<Sprite>("pikeman");
+                break;
+            case ArmyType_.Archer:
+                panelUnitInfo.transform.Find("ImageUnitType").GetComponent<Image>().sprite = Resources.Load<Sprite>("archer");
+                break;
+        }
+        panelUnitInfo.transform.Find("TextAttack").GetComponent<TextMeshProUGUI>().text = Game.Instance.SelectedArmies[0].AttackStrength.ToString();
+        panelUnitInfo.transform.Find("TextDefence").GetComponent<TextMeshProUGUI>().text = Game.Instance.SelectedArmies[0].DefenceStrength.ToString();
+        panelUnitInfo.transform.Find("TextSpeed").GetComponent<TextMeshProUGUI>().text = Game.Instance.SelectedArmies[0].Speed.ToString();
+        panelUnitInfo.transform.Find("TextRange").GetComponent<TextMeshProUGUI>().text = Game.Instance.SelectedArmies[0].Range.ToString();
+        panelUnitInfo.transform.Find("TextType").GetComponent<TextMeshProUGUI>().text = Game.Instance.SelectedArmies[0].ArmyType.ToString();
+        if (Game.Instance.SelectedArmies[0].IsArchers)
+        {
+            panelUnitInfo.transform.Find("LabelRange").gameObject.SetActive(true);
+            panelUnitInfo.transform.Find("TextRange").gameObject.SetActive(true);
+        }
+        else
+        {
+            panelUnitInfo.transform.Find("LabelRange").gameObject.SetActive(false);
+            panelUnitInfo.transform.Find("TextRange").gameObject.SetActive(false);
+        }
+
+        panelUnitInfo.SetActive(true);
     }
 
     private void MultiSelectUnits()
@@ -144,6 +188,7 @@ public class UnitSelection : MonoBehaviour
                 currentArmy.ChangeSelection(false);
             }
         }
+        UpdateUnitInfo();
     }
 
 }

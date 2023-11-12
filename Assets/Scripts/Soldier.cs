@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Soldier : MonoBehaviour
 {
+    [SerializeField] GameObject arrowStartPosition;
+    [SerializeField] private bool isLeader;
     Vector2 localPosition;
     Vector2 destination;
     Animator animator;
@@ -13,11 +15,12 @@ public class Soldier : MonoBehaviour
     private CharacterController characterController;
     private Army army;
     private bool isAlive = true;
-    [SerializeField] private bool isLeader;
     private bool isAttacking;
     private float timeLeftDying;
     private float delaySound;
     private float attackDelay;
+    private float timeLastShotArrow;
+    private bool arrowShot;
 
     public Vector2 Destination { get => destination; set => destination = value; }
     public int PlayerOwner { get => playerOwner; set => playerOwner = value; }
@@ -25,6 +28,7 @@ public class Soldier : MonoBehaviour
     public bool IsAlive { get => isAlive; set => isAlive = value; }
     public bool IsLeader { get => isLeader; set => isLeader = value; }
     public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
+    public Vector2 LocalPosition { get => localPosition; set => localPosition = value; }
 
     void Awake()
     {
@@ -39,7 +43,7 @@ public class Soldier : MonoBehaviour
     {
         IsAlive = false;
         timeLeftDying = 3;
-        int layer = 7;// Random.Range(5, 8);
+        int layer = Random.Range(5, 8);
         animator.SetLayerWeight(layer, 1);
         animator.Play("Die", layer, 0);
         Sound.Instance.PlayDieSound();
@@ -62,11 +66,18 @@ public class Soldier : MonoBehaviour
 
     void Update()
     {
+        if (Game.Instance.GameState != GameState_.Playing)
+        {
+            return;
+        }
         if (timeLeftDying > 0)
         {
             timeLeftDying -= Time.deltaTime;
             if (timeLeftDying < 0)
             {
+                animator.SetLayerWeight(5, 0);
+                animator.SetLayerWeight(6, 0);
+                animator.SetLayerWeight(7, 0);
                 if (army.ActiveSoldiers == 0)
                 {
                     Game.Instance.Armies.Remove(army);
@@ -82,15 +93,11 @@ public class Soldier : MonoBehaviour
         }
         if (isAttacking)
         {
-            delaySound -= Time.deltaTime ;
+            delaySound -= Time.deltaTime;
             if (delaySound < 0)
             {
                 delaySound = 2;
-                if (army.IsArchers)
-                {
-                    Sound.Instance.PlayArrowSound();
-                }
-                else
+                if (!army.IsArchers)
                 {
                     Sound.Instance.PlayAttackSound();
                 }
@@ -112,6 +119,26 @@ public class Soldier : MonoBehaviour
                         animator.SetLayerWeight(layer, 1);
                     }
                     animator.Play("Attack", layer, 0);
+                    timeLastShotArrow = Time.time;
+                }
+            }
+            transform.rotation = Quaternion.LookRotation(army.AttackDirection);
+
+            if (army.IsArchers)
+            {
+                if (Time.time - timeLastShotArrow > 2.4 && !arrowShot)
+                {
+                    arrowShot = true;
+                    GameObject newArrow = Instantiate(army.PfArrow, arrowStartPosition.transform.position, Quaternion.identity);
+                    newArrow.transform.rotation = Quaternion.LookRotation(army.AttackDirection);
+                    newArrow.transform.Rotate(-15,0,0);
+                    newArrow.GetComponent<Arrow>().Distance = army.AttackDistance;
+                }
+                if (Time.time - timeLastShotArrow > 4.29)
+                {
+                    arrowShot = false;
+                    timeLastShotArrow = Time.time;
+                    animator.Play("Attack", 4, 0);
                 }
             }
         }

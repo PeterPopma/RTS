@@ -8,10 +8,16 @@ public class Base : MonoBehaviour
     // Scale: 10..110  dissolveamount: 5.5...0.5
     [SerializeField] float health;
     [SerializeField] GameObject fire;
-    [SerializeField] GameObject fireLight;
     Material fireMaterial;
     GameObject healthbar;
     [SerializeField] int playerNumber;
+    float timeLeftShowHealth;
+    float delayGameOver;
+    LightFlicker lightFlicker;
+    AudioSource soundExplosion;
+    [SerializeField] private Transform vfxExplosion;
+
+    public int PlayerNumber { get => playerNumber; set => playerNumber = value; }
 
     // Start is called before the first frame update
     void Start()
@@ -27,38 +33,54 @@ public class Base : MonoBehaviour
 
         fireMaterial = fire.GetComponent<Renderer>().material;
         health = 100;
-        fireLight.SetActive(false);
+        lightFlicker = fire.transform.Find("FireLight").GetComponent<LightFlicker>();
+        soundExplosion = GameObject.Find("/Sound/Explosion").GetComponent<AudioSource>();
+    }
+
+    public void Damage(float amount)
+    {
+        health -= amount;
+
+        timeLeftShowHealth = 1;
+
+        if (health <= 0)
+        {
+            Game.Instance.SetGameState(GameState_.GameOver);
+            Instantiate(vfxExplosion, transform.position, Quaternion.identity); 
+            soundExplosion.Play();
+            foreach (Transform child in healthbar.transform)
+            {
+                child.gameObject.SetActive(false);
+            }
+            gameObject.SetActive(false);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 30);
-
-        foreach (Transform child in healthbar.transform)
+        if (Game.Instance.GameState != GameState_.Playing)
         {
-            child.gameObject.SetActive(false);
+            return;
         }
-        foreach (var collider in colliders)
+        if (timeLeftShowHealth > 0)
         {
-            Soldier soldier = collider.GetComponent<Soldier>();
-            if (soldier != null)
+            timeLeftShowHealth -= Time.deltaTime;
+            foreach (Transform child in healthbar.transform)
             {
-                if (soldier.Army.PlayerNumber != playerNumber)
-                {
-                    health -= Time.deltaTime * 0.5f;
-                    foreach (Transform child in healthbar.transform)
-                    {
-                        child.gameObject.SetActive(true);
-                    }
-                    break;
-                }
+                child.gameObject.SetActive(true);
             }
         }
-
+        else 
+        { 
+            foreach (Transform child in healthbar.transform)
+            {
+                child.gameObject.SetActive(false);
+            } 
+        }
         if (health < 100)
         {
-            healthbar.GetComponent<Slider>().value = health;
+            healthbar.GetComponent<Slider>().value = 100 - health;
             fire.SetActive(true);
             float scale = 10 + (100-health) * .5f;
             if (scale > 40)
@@ -72,15 +94,7 @@ public class Base : MonoBehaviour
         {
             fire.SetActive(false);
         }
-        if (health < 50)
-        {
-            fireLight.SetActive(true);
-        }
-        else
-        {
-            fireLight.SetActive(false);
-        }
-
+        lightFlicker.MaxIntensity = (80 - health) * 50;
 
         // draw health bar
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + new Vector3(0,0,-18));

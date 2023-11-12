@@ -13,6 +13,5 @@ public class Healthbar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // TODO : set height according terrain
     }
 }
