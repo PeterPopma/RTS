@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class Arrow : MonoBehaviour
 {
+    const float MOVE_DELAY = 0.9f;
     float distance;
     float currentDistance;
     float timeDelayed;
-    const float MOVE_DELAY = 0.9f;
     bool arrowReleased;
-    Vector3 startPosition;
     float currentHeight;
 
     public float Distance { get => distance; set => distance = value; }
@@ -17,7 +16,6 @@ public class Arrow : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        startPosition = transform.position; 
         currentHeight = transform.position.y;
     }
 

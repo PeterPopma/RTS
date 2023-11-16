@@ -182,7 +182,6 @@ public class Soldier : MonoBehaviour
                 distanceToDestination.Normalize();
                 Vector3 direction = new Vector3(distanceToDestination.x, 0, distanceToDestination.y);
                 transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
-                //      transform.position += direction * Time.deltaTime * moveSpeed;
                 characterController.Move(direction * Time.deltaTime * moveSpeed);
             }
             else

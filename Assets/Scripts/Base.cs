@@ -94,7 +94,7 @@ public class Base : MonoBehaviour
         {
             fire.SetActive(false);
         }
-        lightFlicker.MaxIntensity = (80 - health) * 50;
+        lightFlicker.DefaultIntensity = (80 - health) * 50;
 
         // draw health bar
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + new Vector3(0,0,-18));

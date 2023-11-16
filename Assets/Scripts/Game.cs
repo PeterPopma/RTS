@@ -17,10 +17,10 @@ public class Game : MonoBehaviour
     [SerializeField] GameObject baseBlue;
     [SerializeField] GameObject baseRed;
     [SerializeField] TextMeshProUGUI textPlayerWon;
+    [SerializeField] float cameraHeight = 100;
     public static Game Instance;
     private List<Army> armies = new List<Army>();
     private List<Army> selectedArmies = new List<Army>();
-    float cameraHeight = 100;
     GameState_ gameState;
     int playerWon;
 

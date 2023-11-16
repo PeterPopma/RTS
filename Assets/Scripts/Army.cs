@@ -140,7 +140,7 @@ public class Army : MonoBehaviour
         {
             bool attackMode = false;
             Collider[] colliders = Physics.OverlapSphere(armyLeader.transform.position, range);
-            //            DebugExtension.DebugWireSphere(armyLeader.transform.position, Color.white, range);
+//            DebugExtension.DebugWireSphere(armyLeader.transform.position, Color.white, range);
             Soldier soldierBeingAttacked = null;
             Base baseBeingAttacked = null;
 
@@ -166,8 +166,7 @@ public class Army : MonoBehaviour
                 {
                     if (baseBeingAttacked.PlayerNumber != playerNumber)
                     {
-//                        baseBeingAttacked.Damage(Time.deltaTime * attackStrength * 0.1f);
-                        baseBeingAttacked.Damage(Time.deltaTime * attackStrength * 0.5f);
+                        baseBeingAttacked.Damage(Time.deltaTime * attackStrength * 0.1f);
                         attackDirection = baseBeingAttacked.transform.position - armyLeader.transform.position;
                         attackDirection.y = 0;
                         attackDistance = attackDirection.magnitude;

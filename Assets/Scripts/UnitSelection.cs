@@ -8,13 +8,13 @@ public class UnitSelection : MonoBehaviour
 {
     [SerializeField] GameObject arrow;
     [SerializeField] GameObject panelUnitInfo;
+    [SerializeField] Camera camera;
 
     Texture2D selectTexture;
     Vector3 boxBegin;
     Vector3 boxEnd;
     float timeLeftArrow;
     Vector3 arrowPosition;
-    new Camera camera;
 
     bool drawing;
 
@@ -24,7 +24,6 @@ public class UnitSelection : MonoBehaviour
         selectTexture.SetPixel(0, 0, Color.white);
         selectTexture.Apply();
         arrow.SetActive(false); 
-        camera = GetComponent<Camera>();
         panelUnitInfo.SetActive(false);
     }
 
@@ -33,8 +32,6 @@ public class UnitSelection : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse0) && Game.Instance.SelectedArmies.Count>0)
         {
             timeLeftArrow = 1;
-            //            arrowPosition = camera.ViewportToWorldPoint(new Vector3(Input.mousePosition.x / Screen.width, Input.mousePosition.y / Screen.height, Game.Instance.CameraHeight));
-            //            arrowPosition = new Vector3(arrowPosition.x, Terrain.activeTerrain.SampleHeight(arrowPosition) + 10, arrowPosition.z);
 
             Ray ray = camera.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
             RaycastHit hit;
