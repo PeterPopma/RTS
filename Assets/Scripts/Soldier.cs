@@ -80,8 +80,11 @@ public class Soldier : MonoBehaviour
                 animator.SetLayerWeight(7, 0);
                 if (army.ActiveSoldiers == 0)
                 {
-                    Game.Instance.Armies.Remove(army);
-                    Game.Instance.SelectedArmies.Remove(army);
+                    Game.Instance.Players[army.PlayerNumber].Armies.Remove(army);
+                    if (army.PlayerNumber == 0)
+                    {
+                        HumanPlayer.Instance.SelectedArmies.Remove(army);
+                    }
                     Destroy(army.Healthbar); 
                     Destroy(army.gameObject);
                 }
@@ -182,7 +185,11 @@ public class Soldier : MonoBehaviour
                 distanceToDestination.Normalize();
                 Vector3 direction = new Vector3(distanceToDestination.x, 0, distanceToDestination.y);
                 transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
-                characterController.Move(direction * Time.deltaTime * moveSpeed);
+                float newY = Terrain.activeTerrain.SampleHeight(new Vector3(transform.position.x + direction.x * Time.deltaTime * moveSpeed, 500, transform.position.z + direction.z * Time.deltaTime * moveSpeed));
+                if (newY > 9)
+                {
+                    characterController.Move(direction * Time.deltaTime * moveSpeed);
+                }
             }
             else
             {
@@ -190,6 +197,10 @@ public class Soldier : MonoBehaviour
                 {
                     // army at destination, so attack if encountering enemies
                     army.WantsToAttack = true;
+                    if (army.GetComponent<ArmyAI>() != null)
+                    {
+                        army.GetComponent<ArmyAI>().OnArmyArrivedAtDestination();
+                    }
                 }
                 animator.SetFloat(animIDSpeed, 0);
             }

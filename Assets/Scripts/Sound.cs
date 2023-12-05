@@ -7,6 +7,8 @@ public class Sound : MonoBehaviour
     [SerializeField] List<AudioSource> attackSounds;
     [SerializeField] List<AudioSource> dieSounds;
     [SerializeField] List<AudioSource> arrowSounds;
+    [SerializeField] List<AudioSource> chopSounds;
+    [SerializeField] List<AudioSource> footStepSounds;
 
     public static Sound Instance;
     public void Awake()
@@ -27,5 +29,15 @@ public class Sound : MonoBehaviour
     public void PlayArrowSound()
     {
         arrowSounds[Random.Range(0, dieSounds.Count)].Play();
+    }
+
+    public void PlayChopSound()
+    {
+        chopSounds[Random.Range(0, chopSounds.Count)].Play();
+    }
+
+    public void PlayFootStepSound()
+    {
+        footStepSounds[Random.Range(0, footStepSounds.Count)].Play();
     }
 }

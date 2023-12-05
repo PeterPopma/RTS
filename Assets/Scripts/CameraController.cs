@@ -17,8 +17,6 @@ public class CameraController : MonoBehaviour
     bool decreaseAngleY;
     new Camera camera;
     private float timeMovingStarted;
-    //private float cameraAngleX = 11;
-    //private float cameraAngleY = -94;
     private float cameraAngleX = 60;
     private float cameraAngleY = 0;
 
@@ -33,7 +31,7 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float moveSpeed = 24f;// * Mathf.Pow(3, (Time.time - timeMovingStarted));
+        float moveSpeed = 24f * Mathf.Pow(3, (Time.time - timeMovingStarted));
         if (moveSpeed>200f)
         {
             moveSpeed = 200f;
@@ -54,7 +52,7 @@ public class CameraController : MonoBehaviour
         {
             camera.transform.position -= new Vector3(0, 0, Time.deltaTime * moveSpeed);
         }
-        if (increaseAngleX && cameraAngleX < 60)
+        if (increaseAngleX && cameraAngleX < 89)
         {
             cameraAngleX += 40 * Time.deltaTime;
             camera.transform.rotation = Quaternion.Euler(cameraAngleX, cameraAngleY, 0);

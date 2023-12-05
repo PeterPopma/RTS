@@ -27,7 +27,7 @@ public class Army : MonoBehaviour
     int activeSoldiers = 10;
     bool isSelected;
     float health = 100;
-    bool wantsToAttack = true;
+    bool wantsToAttack = true;          // Indication whether the army wants to first move to the exact location, or directly attack
     float timeLeftShowHealth;
     Vector3 attackDirection;
     float attackDistance;
@@ -51,11 +51,6 @@ public class Army : MonoBehaviour
     public float AttackDistance { get => attackDistance; set => attackDistance = value; }
     public ArmyType_ ArmyType { get => armyType; set => armyType = value; }
     public float Health { get => health; set => health = value; }
-
-
-    private void Awake()
-    {
-    }
 
     public void ChangeHealth(float amount)
     {
@@ -102,14 +97,14 @@ public class Army : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         healthbar = Instantiate(Game.Instance.PfHealthbar);
         healthbar.transform.SetParent(Game.Instance.Canvas.transform, false);
         healthbar.name = "Health_" + gameObject.name;
         healthbar.SetActive(false);
 
-        Game.Instance.Armies.Add(this);
+        Game.Instance.Players[playerNumber].Armies.Add(this);
         foreach (Transform child in transform)
         {
             Soldier soldier = child.GetComponent<Soldier>();
@@ -142,7 +137,7 @@ public class Army : MonoBehaviour
             Collider[] colliders = Physics.OverlapSphere(armyLeader.transform.position, range);
 //            DebugExtension.DebugWireSphere(armyLeader.transform.position, Color.white, range);
             Soldier soldierBeingAttacked = null;
-            Base baseBeingAttacked = null;
+            HeadQuarters headQuarterUnderAttack = null;
 
             foreach (var collider in colliders)
             {
@@ -161,13 +156,13 @@ public class Army : MonoBehaviour
                         break;
                     }
                 }
-                baseBeingAttacked = collider.GetComponent<Base>();
-                if (baseBeingAttacked != null)
+                headQuarterUnderAttack = collider.GetComponent<HeadQuarters>();
+                if (headQuarterUnderAttack != null)
                 {
-                    if (baseBeingAttacked.PlayerNumber != playerNumber)
+                    if (headQuarterUnderAttack.PlayerNumber != playerNumber)
                     {
-                        baseBeingAttacked.Damage(Time.deltaTime * attackStrength * 0.1f);
-                        attackDirection = baseBeingAttacked.transform.position - armyLeader.transform.position;
+                        headQuarterUnderAttack.Damage(Time.deltaTime * attackStrength * 0.1f);
+                        attackDirection = headQuarterUnderAttack.transform.position - armyLeader.transform.position;
                         attackDirection.y = 0;
                         attackDistance = attackDirection.magnitude;
                         attackDirection = attackDirection.normalized;
@@ -200,7 +195,7 @@ public class Army : MonoBehaviour
         }
         if (isSelected || timeLeftShowHealth>0)     // draw health bar
         {
-            if (timeLeftShowHealth >0)
+            if (timeLeftShowHealth > 0)
             {
                 timeLeftShowHealth -= Time.deltaTime;
             }
@@ -245,11 +240,11 @@ public class Army : MonoBehaviour
 
         if (selected)
         {
-            Game.Instance.SelectedArmies.Add(this);
+            HumanPlayer.Instance.SelectedArmies.Add(this);
         }
         else
         {
-            Game.Instance.SelectedArmies.Remove(this);
+            HumanPlayer.Instance.SelectedArmies.Remove(this);
         }
 
         foreach (Soldier soldier in soldiers)

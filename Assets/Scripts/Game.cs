@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum GameState_
 {
@@ -13,34 +14,36 @@ public class Game : MonoBehaviour
 {
     [SerializeField] Canvas canvas;
     [SerializeField] GameObject pfHealthbar;
+    [SerializeField] GameObject pfProgressBar;
     [SerializeField] GameObject panelGameOver;
-    [SerializeField] GameObject baseBlue;
-    [SerializeField] GameObject baseRed;
     [SerializeField] TextMeshProUGUI textPlayerWon;
     [SerializeField] float cameraHeight = 100;
+    [SerializeField] Player[] players;      // array of players, contains human player at index 0 and computer player at index 1
     public static Game Instance;
-    private List<Army> armies = new List<Army>();
-    private List<Army> selectedArmies = new List<Army>();
     GameState_ gameState;
     int playerWon;
+    private List<GameObject> trees = new List<GameObject>();
 
-    public List<Army> Armies { get => armies; set => armies = value; }
-    public List<Army> SelectedArmies { get => selectedArmies; set => selectedArmies = value; }
     public float CameraHeight { get => cameraHeight; set => cameraHeight = value; }
     public GameObject PfHealthbar { get => pfHealthbar; set => pfHealthbar = value; }
     public Canvas Canvas { get => canvas; set => canvas = value; }
     public GameState_ GameState { get => gameState; set => gameState = value; }
     public int PlayerWon { get => playerWon; set => playerWon = value; }
+    public List<GameObject> Trees { get => trees; set => trees = value; }
+    public GameObject PfProgressBar { get => pfProgressBar; set => pfProgressBar = value; }
+    public Player[] Players { get => players; set => players = value; }
 
     public void Awake()
     {
         Instance = this;
     }
-    
+
     void Start()
     {
+        HumanPlayer.Instance.Player = players[0];
         NewGame();
     }
+    
 
     void Update()
     {
@@ -48,10 +51,12 @@ public class Game : MonoBehaviour
 
     private void NewGame()
     {
+        players[0].NewGame();
+        players[1].NewGame();
+        Trees.Clear();
+        GameObject.Find("Scripts/TreeSpawner").GetComponent<TreeSpawner>().SpawnTrees();
         gameState = GameState_.Playing;
         panelGameOver.SetActive(false);
-        baseBlue.SetActive(true);
-        baseRed.SetActive(true);
     }
 
     public void SetGameState(GameState_ gameState)
@@ -59,56 +64,34 @@ public class Game : MonoBehaviour
         switch (gameState)
         {
             case GameState_.GameOver:
+                textPlayerWon.text = "Player " + playerWon + " has won the game.";
                 panelGameOver.SetActive(true);
                 break;
         }
         this.gameState = gameState;
     }
 
-    private bool WantsToAttackEnemy(Vector2 destination)
+    public GameObject SelectClosestTree(Vector3 position)
     {
-        int playerNumber = SelectedArmies[0].PlayerNumber;
-        Collider[] colliders = Physics.OverlapSphere(new Vector3(destination.x, destination.y, 0), 10);
-
-        foreach (var collider in colliders)
+        GameObject closestTree = null;
+        float closestDistance = float.MaxValue;
+        foreach (GameObject tree in trees)
         {
-            Soldier soldier = collider.GetComponent<Soldier>();
-            if (soldier != null)
+            float distance = (new Vector2(position.x, position.y) - new Vector2(tree.transform.position.x, tree.transform.position.z)).magnitude;
+            if (distance < closestDistance)
             {
-                if (soldier.Army.PlayerNumber != playerNumber)
-                {
-                    return true;
-                }
+                closestDistance = distance;
+                closestTree = tree;
             }
         }
+        trees.Remove(closestTree);
 
-        return false;
+        return closestTree;
     }
 
-    public void SetArmyDestination(Vector2 destination)
+    public void OnCreateDemo1()
     {
-        bool attackingEnemy = WantsToAttackEnemy(destination);
-        foreach (var army in SelectedArmies)
-        {
-            army.WantsToAttack = attackingEnemy;
-            army.SetDestination(destination);
-            if (!attackingEnemy)
-            {
-                army.UpdateAttackMode(false);
-            }
-        }
+        DemoScene.Instance.Create();
     }
 
-    public void RemoveSelection()
-    {
-        foreach (var army in SelectedArmies)
-        {
-            army.IsSelected = false; 
-            foreach (Soldier soldier in army.Soldiers)
-            {
-                soldier.ChangeSelection(false);
-            }
-        }
-        SelectedArmies.Clear();
-    }
 }
